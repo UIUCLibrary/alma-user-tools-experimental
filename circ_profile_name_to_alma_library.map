@@ -1,60 +1,13 @@
 ---
--
-  pattern: Lit Lang
-  codes:
-    - LITLANG
--
-  pattern: Engineering
+engineering:
   codes:
     - ENGINEER
--
-  pattern: Undergrad
-  codes:
-    - UNDERGRAD
--
-  pattern: Oak Street
-  codes:
-    - OAKSTREET
--
-  pattern: RHL
+rhl:
   codes:
     - RESHALLALL
     - RESHALLFLO
     - RESHALLIKE
     - RESHALLILL
--
-  pattern: Map
-  codes:
-    - MAP
--
-  pattern: Vet Med
-  codes:
-    - VETMED
--
-  pattern: IAS
-  codes:
-    - IAS
--
-  pattern: ACES
-  codes:
-    - ACES
--
-  pattern: Law
-  codes:
-    - LAW
--
-  pattern: History
-  codes:
-    - HISTORY    
--
-  pattern: Chemistry
-  codes:
-    - CHEMISTRY
--
-  pattern: Music
+music:
   codes:
     - MPAL
--
-  pattern: SSHEL
-  codes:
-    - SSHEL
