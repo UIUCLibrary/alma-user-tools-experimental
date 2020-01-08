@@ -2,6 +2,11 @@
 
 This is a collection of scripts for bridging staff users from Voyager to Alma.
 
+## Requirements
+  * net-ldap
+  * logging
+  * ruby-oci8 https://www.rubydoc.info/gems/ruby-oci8/2.2.7/file/docs/install-instant-client.md and https://www.rubydoc.info/gems/ruby-oci8/2.2.7
+
 ## Flow
 
   1. Create a text file with a list of uins (comments allowed with #)
@@ -16,3 +21,5 @@ This is a collection of scripts for bridging staff users from Voyager to Alma.
 ## Parts and files
 
   * pattern2library.csv - lists patterns in circ policy names that translates to certain libraries to set scope scope 
+
+
