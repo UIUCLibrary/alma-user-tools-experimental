@@ -48,7 +48,7 @@ uins.each do | uin |
                                  :return_result => false,
                                ) do | entry |
     if entry.respond_to?('cn') then
-      netids = netids + entry.cn.map(&:to_s)  
+      netids = netids + entry.cn.map(&:to_s) q 
     end
 
     people.push( { uin: uin,
