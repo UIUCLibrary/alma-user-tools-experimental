@@ -15,7 +15,7 @@ def user_role_exists?( xml, role )
     if !user_role.xpath( 'role_type[contains(text(),"' + role[:id].to_s + '")]' ).empty? and !user_role.xpath( 'scope[contains(text(),"' + role[:scope] + '")]' ).empty? 
       return true
     end
-
+    
   end
 
   
@@ -29,20 +29,34 @@ end
 
 def add_role( xml, person, role )
 
-  if user_role_exists?(xml, role)
+ if  user_role_exists?(xml, role)
     puts "Would not add role to " + person[:netids][0] + ' (' + person[:uin] + '), role already exists ' + role.to_s
-  else
-    puts "Would  add role to " + person[:netids][0] + ' (' + person[:uin] + ') ' + role.to_s
 
-  end
-  
-  #  elsif xml.xpath( xpath ).empty?
-#    puts person[:netids][0] + ' (' + person[:uin] + ')' +   " doesn't have role #{role_id} set,  adding with scopes of " + person[:scopes].join(",")#
-#
-#    
-#  else
-#    puts person[:uin] + " #{role_id} already set "
-#  end 
+ else
+
+   role_node = xml.create_element( 'user_role' )
+
+   role_node.add_child( xml.create_element 'status', 'ACTIVE' )
+   role_node.add_child( xml.create_element 'scope', role[:scope] )
+   role_node.add_child( xml.create_element 'role_type', role[:id] )
+
+   if role[:parameters]
+
+     parameters = xml.create_element( 'parameters')
+
+     role[:parameters].each do |type,value|
+       parameters.add_child( xml.create_element 'type', type ) 
+       parameters.add_child( xml.create_element 'value', value ) 
+     end
+
+     role_node.add_child( parameters )
+   end
+
+   user_roles = xml.xpath( '/user/user_roles' ).first.add_child( role_node )
+
+   
+    
+ end
 end
 
 
@@ -103,26 +117,55 @@ people.each do | person |
 
 
   #TODO: Make some sort of object to represent roles, that way can generate necessary xml easier....
-  unscoped_role_ids = [214,52,239,200]
-
-
-
+  #
+  default_roles = [{:id     =>  214,
+                    :scope  => '01CARLI_UIU',
+                   },
+                   {:id     =>  52,
+                    :scope  => '01CARLI_UIU',
+                    :parameters => [
+                      { 'Read only' => 'true' },
+                    ]
+                   },
+                   {:id     =>  239,
+                    :scope  => '01CARLI_UIU',
+                   },
+                   {:id     =>  200,
+                    :scope  => '01CARLI_UIU',
+                   },
+                  ]
+  
   # 221 Circulation Desk Manager
   # 32  Circulation Desk Operator
   # 51  Requests Operator
-  scoped_role_ids = [51,32,221]
 
+  scoped_roles = [{:id => 51,
+                   :parameters => [
+                    {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
+                   ],
+                  },
+                  {:id => 32,
+                   :parameters => [
+                     {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
+                   ],
+                  },
+                  {:id => 221,
+                   :parameters => [
+                     {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
+                   ],
+                  },
+                 ]
+                 
   
-  default_roles = unscoped_role_ids.map { | role_id | { :id => role_id, :scope => '01CARLI_UIU' }  }
-
-  puts person 
+#  puts person 
 
   # we might want to default to scoped roles being for everything if there is no scoping?
   # probably should at least warn
   unless person[:scopes].nil? or person[:scopes].empty?
     person[:scopes].each do | scope_id |
-      scoped_role_ids.each do | role_id |
-        default_roles.push( { :id => role_id, :scope => scope_id }  )
+      scoped_roles.each do | role |
+        role[:scope] = scope_id
+        default_roles.push( role  )
       end
     end
   else
@@ -136,7 +179,7 @@ people.each do | person |
     add_role( xml, person, role )
   end
 
-#  File.write(updated_xml_dir + '/' + person[:uin] + '.xml', updated_xml.to_xml ) 
+  File.write(updated_xml_dir + '/' + person[:uin] + '.xml', updated_xml.to_xml ) 
   
 end 
 
