@@ -4,24 +4,38 @@ require 'nokogiri'
 
 
 
+def user_role_exists?( xml, role )
+
+  # this is awkward...
+
+  user_roles = xml.xpath( '/user/user_roles/user_role' )
+  
+  user_roles.each do | user_role |
+
+    if user_role.xpath( 'role_type[contains(text(),"' + role[:id].to_s + '")]' ).empty? and user_role.xpath( 'scope[contains(text(),"' + role[:scope] + '")]' ).empty? 
+      return true
+    end
+
+  end
+
+  
+
+  false
+
+end
+
 # seems awkward, scopes probably should be part of a role object
 # ...consider refactoring...
 
 def add_role( xml, person, role )
 
-
-  puts person[:netids][0] + ' (' + person[:uin] + ')' +  role.to_s
+  if user_role_exists?(xml, role)
+    puts "Would add role to " + person[:netids][0] + ' (' + person[:uin] + ')' +  role.to_s
+  else
+    puts "Would not add role to " + person[:netids][0] + ' (' + person[:uin] + '), role already exists '
+  end
   
-#  xpath = '/user/user_roles/user_role/role_type[contains(text(),"' + role_id.to_s + '")]'
-#
-#  if scopes.empty? and xml.xpath( xpath ).empty?
-#    puts person[:netids][0] + ' (' + person[:uin] + ')' +   " doesn't have role #{role_id} set, adding "#
-#
-#    add_role_without_scope
-#  else
-#
-#    
-#  elsif xml.xpath( xpath ).empty?
+  #  elsif xml.xpath( xpath ).empty?
 #    puts person[:netids][0] + ' (' + person[:uin] + ')' +   " doesn't have role #{role_id} set,  adding with scopes of " + person[:scopes].join(",")#
 #
 #    
@@ -29,6 +43,8 @@ def add_role( xml, person, role )
 #    puts person[:uin] + " #{role_id} already set "
 #  end 
 end
+
+
 # TODO: reafactor so xml part of a person class
 # to make stuff flike add_Role le
 
@@ -96,7 +112,7 @@ people.each do | person |
   scoped_role_ids = [51,32,221]
 
   
-  default_roles = unscoped_role_ids.map { | role_id | { :role_id => role_id, :scope => '01CARLI_UIU' }  }
+  default_roles = unscoped_role_ids.map { | role_id | { :id => role_id, :scope => '01CARLI_UIU' }  }
 
   puts person 
 
@@ -105,7 +121,7 @@ people.each do | person |
   unless person[:scopes].nil? or person[:scopes].empty?
     person[:scopes].each do | scope_id |
       scoped_role_ids.each do | role_id |
-        default_roles.push( { :role_id => role_id, :scope => scope_id }  )
+        default_roles.push( { :id => role_id, :scope => scope_id }  )
       end
     end
   else
