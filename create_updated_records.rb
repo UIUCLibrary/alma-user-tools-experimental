@@ -81,7 +81,7 @@ people.each do | person |
 
     eppn_identifier_node = updated_xml.create_element( 'user_identifier' )
 
-    eppn_identifier_node.add_child( updated_xml.create_element 'id_type', 'SCOPEDNETID', :desc => "Scoped Netid (eppn)"  )
+    eppn_identifier_node.add_child( updated_xml.create_element 'id_type', 'NETIDSCOPED', :desc => "Scoped Netid (eppn)"  )
     eppn_identifier_node.add_child( updated_xml.create_element 'value', person[:netids][0] + '@isllinois.edu' )
     eppn_identifier_node.add_child( updated_xml.create_element 'note', 'Added by script on ' + Time.now.to_s )
     eppn_identifier_node.add_child( updated_xml.create_element 'status', 'ACTIVE' )
