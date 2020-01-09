@@ -62,10 +62,11 @@ people.each do | person |
       end
     end
     puts person[:uin] + "," + scopes.join(";")
+    person[:scopes] = scopes
   end
-
 end
 
+File.write("_data/staff_added_scopes.yml", people.to_yaml)
 
                            
   
