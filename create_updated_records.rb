@@ -45,8 +45,14 @@ def add_role( xml, person, role )
      parameters = xml.create_element( 'parameters')
 
      role[:parameters].each do |type,value|
-       parameters.add_child( xml.create_element 'type', type ) 
-       parameters.add_child( xml.create_element 'value', value ) 
+       
+       parameter = xml.create_element( 'parameter')
+     
+       parameter.add_child( xml.create_element 'type', type ) 
+       parameter.add_child( xml.create_element 'value', value ) 
+
+       parameters.add_child( parameter )
+       
      end
 
      role_node.add_child( parameters )
@@ -123,9 +129,7 @@ people.each do | person |
                    },
                    {:id     =>  52,
                     :scope  => '01CARLI_UIU',
-                    :parameters => [
-                      { 'Read only' => 'true' },
-                    ]
+                    :parameters => { 'Read only' => 'true' },
                    },
                    {:id     =>  239,
                     :scope  => '01CARLI_UIU',
@@ -140,19 +144,13 @@ people.each do | person |
   # 51  Requests Operator
 
   scoped_roles = [{:id => 51,
-                   :parameters => [
-                    {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
-                   ],
+                   :parameters => {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
                   },
                   {:id => 32,
-                   :parameters => [
-                     {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
-                   ],
+                   :parameters => {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
                   },
                   {:id => 221,
-                   :parameters => [
-                     {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
-                   ],
+                   :parameters => {'CirculationDesk' => 'DEFAULT_CIRC_DESK'},
                   },
                  ]
                  
