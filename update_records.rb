@@ -18,7 +18,8 @@ end
 
 people = YAML::load_file('_data/staff_added_netids.yml')
 
-xml_dir = '_current_xml' ;
+source_xml_dir = '_current_xml' ;
+updated_xml_dir = '_updated_xml' ;
 
 people = YAML::load_file('_data/staff_added_netids.yml')
 
@@ -26,10 +27,23 @@ people = YAML::load_file('_data/staff_added_netids.yml')
 
 people.each do | person |
 
-  xml = File.open(xml_dir + '/' + person[:uin] + '.xml') { |file| Nokogiri::XML( file ) }
+  xml = File.open(source_xml_dir + '/' + person[:uin] + '.xml') { |file| Nokogiri::XML( file ) }
 
+  updated_xml = xml
+  
   if xml.xpath('/user/user_identifiers/id_type[contains(text(),"NETIDSCOPED")]').empty?
     puts person[:uin] + " doesn't have scoped netid set, would add " + person[:netids][0] + '@ilinois.edu'
+
+    eppn_identifier_node = updated_xml.create_element( 'user_identifier' )
+
+    eppn_identifier_node.add_child( updated_xml.create_element 'id_type', 'SCOPEDNETID', :desc => "Scoped Netid (eppn)"  )
+    eppn_identifier_node.add_child( updated_xml.create_element 'value', person[:netids][0] + '@isllinois.edu' )
+    eppn_identifier_node.add_child( updated_xml.create_element 'note', 'Added by script on ' + Time.now.to_s )
+    eppn_identifier_node.add_child( updated_xml.create_element 'status', 'ACTIVE' )
+
+    # probably shoudl skip and warn if no identifier block
+    xml.xpath('/user/user_identifiers').first.add_child( eppn_identifier_node )
+
   else
     puts person[:uin] + " scoped netid already set "
   end
@@ -63,7 +77,8 @@ people.each do | person |
 
     add_role( xml, person, role )
   end
-  
+
+  File.write(updated_xml_dir + '/' + person[:uin] + '.xml', updated_xml.to_xml ) 
   
 end 
 
