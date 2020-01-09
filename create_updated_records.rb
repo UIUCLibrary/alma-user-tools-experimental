@@ -12,7 +12,7 @@ def user_role_exists?( xml, role )
   
   user_roles.each do | user_role |
 
-    if user_role.xpath( 'role_type[contains(text(),"' + role[:id].to_s + '")]' ).empty? and user_role.xpath( 'scope[contains(text(),"' + role[:scope] + '")]' ).empty? 
+    if !user_role.xpath( 'role_type[contains(text(),"' + role[:id].to_s + '")]' ).empty? and !user_role.xpath( 'scope[contains(text(),"' + role[:scope] + '")]' ).empty? 
       return true
     end
 
@@ -30,9 +30,10 @@ end
 def add_role( xml, person, role )
 
   if user_role_exists?(xml, role)
-    puts "Would add role to " + person[:netids][0] + ' (' + person[:uin] + ')' +  role.to_s
+    puts "Would not add role to " + person[:netids][0] + ' (' + person[:uin] + '), role already exists ' + role.to_s
   else
-    puts "Would not add role to " + person[:netids][0] + ' (' + person[:uin] + '), role already exists '
+    puts "Would  add role to " + person[:netids][0] + ' (' + person[:uin] + ') ' + role.to_s
+
   end
   
   #  elsif xml.xpath( xpath ).empty?
