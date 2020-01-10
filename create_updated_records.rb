@@ -124,9 +124,12 @@ people.each do | person |
 
   #TODO: Make some sort of object to represent roles, that way can generate necessary xml easier....
   #
-  default_roles = [{:id     =>  214,
-                    :scope  => '01CARLI_UIU',
-                   },
+
+  # {:id     =>  214,
+  #                  :scope  => '01CARLI_UIU',
+  #                 },
+
+  default_roles = [
                    {:id     =>  52,
                     :scope  => '01CARLI_UIU',
                     :parameters => { 'Read only' => 'true' },
