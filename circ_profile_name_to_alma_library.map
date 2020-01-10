@@ -1,13 +1,13 @@
 ---
-engineering:
+ENGINEERING:
   codes:
     - ENGINEER
-rhl:
+RHL:
   codes:
     - RESHALLALL
     - RESHALLFLO
     - RESHALLIKE
     - RESHALLILL
-music:
+MUSIC:
   codes:
     - MPAL

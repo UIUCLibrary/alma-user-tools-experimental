@@ -54,8 +54,8 @@ people.each do | person |
         circ_profile_name_part = matches[:cpn_front]
         
         
-        if scope_mapping_exceptions.has_key?(circ_profile_name_part.downcase)
-          scopes = scopes + scope_mapping_exceptions[circ_profile_name_part.downcase]["codes"].map(&:to_s)
+        if scope_mapping_exceptions.has_key?(circ_profile_name_part.upcase)
+          scopes = scopes + scope_mapping_exceptions[circ_profile_name_part.upcase]["codes"].map(&:to_s)
         else
           scopes.push( circ_profile_name_to_alma_scope( circ_profile_name_part ) )
         end
