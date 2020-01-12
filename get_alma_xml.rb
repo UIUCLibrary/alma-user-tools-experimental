@@ -43,6 +43,15 @@ end
   
 people = YAML::load_file('_data/staff_added_netids.yml')
 
+counter = 1 
 people.each do | person |
+  counter = counter + 1 
+
+  # need ot tweak this to get most performance...look at actual threshold
+
+  if counter % 20
+    sleep(1)
+  end
+  
   download_xml( person[:uin] )
 end
