@@ -33,7 +33,7 @@ def add_role( xml, person, role )
     puts "Would not add role to " + person[:netids][0] + ' (' + person[:uin] + '), role already exists ' + role.to_s
 
  else
-
+   puts "Adding role, " + role.to_s + " to " + person[:netids][0] + ' (' + person[:uin] + ')'
    role_node = xml.create_element( 'user_role' )
 
    role_node.add_child( xml.create_element 'status', 'ACTIVE' )
@@ -81,14 +81,16 @@ people.each do | person |
   xml = File.open(source_xml_dir + '/' + person[:uin] + '.xml') { |file| Nokogiri::XML( file ) }
 
   updated_xml = xml
+
+  eppn =  person[:netids][0] + '@illinois.edu'
   
-  if xml.xpath('/user/user_identifiers/id_type[contains(text(),"NETIDSCOPED")]').empty?
-    puts person[:uin] + " doesn't have scoped netid set, would add " + person[:netids][0] + '@ilinois.edu'
+  if xml.xpath('/user/user_identifiers/user_identifier/id_type[contains(text(),"NETIDSCOPED")]').empty?
+    puts person[:uin] + " doesn't have scoped netid set, would add #{ eppn }"
 
     eppn_identifier_node = updated_xml.create_element( 'user_identifier' )
 
     eppn_identifier_node.add_child( updated_xml.create_element 'id_type', 'NETIDSCOPED', :desc => "Scoped Netid (eppn)"  )
-    eppn_identifier_node.add_child( updated_xml.create_element 'value', person[:netids][0] + '@isllinois.edu' )
+    eppn_identifier_node.add_child( updated_xml.create_element 'value', eppn )
     eppn_identifier_node.add_child( updated_xml.create_element 'note', 'Added by script on ' + Time.now.to_s )
     eppn_identifier_node.add_child( updated_xml.create_element 'status', 'ACTIVE' )
 
@@ -160,12 +162,25 @@ people.each do | person |
   
 #  puts person 
 
+
+  
   # we might want to default to scoped roles being for everything if there is no scoping?
   # probably should at least warn
   unless person[:scopes].nil? or person[:scopes].empty?
+
+    puts person[:scopes].join("|") 
+
+
     person[:scopes].each do | scope_id |
-      scoped_roles.each do | role |
-        role[:scope] = scope_id
+      puts "examining #{scope_id}"
+      
+      scoped_roles.each do | scoped_role |
+        puts scoped_role
+        role = { :scope => scope_id,
+                 :id    => scoped_role[:id],
+                 :parameters => scoped_role[:parameters].clone,
+               }
+
         default_roles.push( role  )
       end
     end
@@ -174,6 +189,7 @@ people.each do | person |
   end
   
 
+  puts "Default  roles: "
   puts default_roles
   
   default_roles.each do | role |
