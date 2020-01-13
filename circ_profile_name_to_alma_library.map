@@ -2,6 +2,11 @@
 ENGINEERING:
   codes:
     - ENGINEER
+    - CHEMISTRY
+CHEMISTRY:
+  codes:
+    - ENGINEER
+    - CHEMISTRY
 RHL:
   codes:
     - RESHALLALL
