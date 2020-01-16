@@ -111,5 +111,8 @@ ruby update_users.rb | tee -a update_results_run3.txt
 
 ## TO DO
 
+* Pull hardcoded role scope stuff into a configuration (somehow)
 * If match role_type and scope, but inactive -> just make active
-* Figure out what ServiceDesk is for 214
+* Pull out API stuff to better handle rate-limiting as well as checking for rejections due ot api limits being released
+* add better logging and alerts
+* make templates for configuration files
