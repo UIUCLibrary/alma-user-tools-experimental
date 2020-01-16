@@ -1,0 +1,3 @@
+---
+url_base: api-na.hosted.exlibrisgroup.com
+api_key: *Go to the developer zone -> manage api keys -> create a read/write users api key*
