@@ -11,7 +11,7 @@ module Alma
     class Api
       extend Limiter::Mixin
       
-      limit_method :call, rate: 20, interval: 1
+      limit_method :call, rate: 19, interval: 1
       
 
       def initialize(config_file = 'alma.yml')
@@ -77,7 +77,7 @@ module Alma
           }
           
           raw_xml = response.body
-          
+                    
           xml = Nokogiri::XML( raw_xml ) 
 
           # see daily_threshold.xml for an example of what is returend
@@ -85,14 +85,21 @@ module Alma
           # this is relative to midnight GMT
           # see concurrent_threshold.xml (also called per_second_threshold in docs) for example of taht
           # this will be returned w/ a code of 429
-          
 
-          daily_threshold_xpath = '/web_service_result/errorsList/error/errorCode[contains(text(),"DAILY_THRESHOLD")]' 
+
+          # will need to investigate to see if namespace is actually returned in errors unlike some of the other stuff...
+          
+          #          daily_threshold_xpath = '
+          daily_threshold_xpath = '//ae:web_service_result'
+
+
+          # since results are normally not namespaced, we may be better off just doing xml.remove_namespaces!
+          # rather than trusting the docs that these are actually namespaced
           
           # check for daily limit, sleep til midnight GMT if found
-          if !xml.xpath( daily_threshold_xpath ).empty?
+          if !xml.xpath( '/ae:web_service_result/ae:errorList/ae:error/ae:errorCode[contains(text(),"DAILY_THRESHOLD")]',
+                         { 'ae' => "http://com/exlibris/urm/general/xmlbeans"} ).empty?
             puts "Warning - reached daily limit for API, going to sleep"
-            puts response.body
             sleep_till_midnight()
             
           # check for second limit, sleep till next second if found. Don't need to check body, docs say this always returns 429 if it is triggered
@@ -101,7 +108,6 @@ module Alma
             sleep(1)
             
           else
-#            puts "not a throttled response"
             throttled_result = false
           end
         end
