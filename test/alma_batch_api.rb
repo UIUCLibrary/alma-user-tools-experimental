@@ -1,21 +1,24 @@
 require 'test/unit'
 require 'webmock/test_unit'
 require __dir__ + '/../lib/Alma/Batch/Api.rb'
+require 'uri'
 
 class TestAlmaBatchAPI < Test::Unit::TestCase
   
 
   def test_control
+
+    puts "control test started"
     
     # this is complete guess work,
     # but will test 30 times and if 29 get done in less
     # than a second, the reest of the tests are reasonable
     
-    api = Alma::Batch::Api.new
+    api = Alma::Batch::Api.new( __dir__ + '/test_alma.yml' )
     
 
-    mock_responses = (1..30).map { | position | { body: position.to_s }}
-
+    mock_responses = (1..30).map { | position | { body: "<user><primary_id>#{position.to_s }</primary_id></user>" } }
+    
     # set up webmock
     stub_request(:any, /.*/).to_return( mock_responses )
     
@@ -25,8 +28,9 @@ class TestAlmaBatchAPI < Test::Unit::TestCase
     (1..30).each do
       start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC )
 
-      request = Net::HTTP::Get.new( 'http://madeupdomains.com/forus' )
-      api.call( request )
+      uri = URI( 'https://foo/user/1' )
+      request = Net::HTTP::Get.new( uri )
+      api.call( uri, request  )
       
       if Process.clock_gettime(Process::CLOCK_MONOTONIC ) - start_time < 1 then
         less_than_a_second_count += 1
@@ -35,65 +39,52 @@ class TestAlmaBatchAPI < Test::Unit::TestCase
     
     assert_compare(less_than_a_second_count, '>', 29 ) 
     
-    
+
+    puts "control test ended"
   end
 
+  def test_pauses_after_per_second_warning
 
+    api = Alma::Batch::Api.new
 
-#  def test_pauses_after_per_second_warning
-    
-    # this is complete guess work,
-    # but will test 30 times and if 29 get done in less
-    # than a second, the reest of the tests are reasonable
-    
-#    api = Alma::Batch::Api.new
-    
-    
-    # set up webmock 
-#    (1..30).each do | position |#
-#
-#      if position % 3 == 0
-#        stub_request(:any, /.*/)
-#      else
-#        stub_request(:any, /.*/)
-#      end
-#    end
-    
-#    less_than_a_second_count = 0
-#
-#    (1..30).each do
-#      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC )
-#      
-#      if Process.clock_gettime(Process::CLOCK_MONOTONIC ) - start_time < 1 then
-#        less_than_a_second_count += 1
-#      end
-#    end
-#    
-#    assert_compare(less_than_a_second_count, '>', 29 ) 
-#    
-#    
-#  end
+    # if we time out every five, we'll need to make sure we have 31, because WebMock repeats the last request
+    # feels like better way to do this...
+    mock_responses = (1..31).flat_map { | position |
+      mock_response = []
+      if position % 5 == 0 then
+        mock_response.push( {status: 429,
+                             body: File.read(__dir__ + '/concurrent_threshold.xml'), } )
+      end
+      mock_response.push( {status: 200,
+                           body: "<user><primary_id>#{position.to_s}</primary_id></user>" } )
+       mock_response  
+    }  
 
+    puts mock_responses
+    
+    # set up webmock
+    stub_request(:any, /.*/).to_return( mock_responses )
+    
+    
+    more_than_a_second_count = 0
 
+    (1..30).each do | position |
+      puts "At request #{position}" 
+      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC )
+
+      uri = URI(  'https://foo/user/1' )
+      request = Net::HTTP::Get.new( uri )
+      
+      api.call( uri, request  )
+      
+      if position % 5 == 0 and (Process.clock_gettime(Process::CLOCK_MONOTONIC ) - start_time ) > 1 then
+        puts "got time delay"
+        more_than_a_second_count += 1
+      end
+    end
+    
+    assert_compare(more_than_a_second_count, '>=' , 6 ) 
+    
+    puts "per second message test ended"
+  end
 end
-
-
-  #  it 'pauses for one second if hits PER SECOND threshold' do
-#
-#    api = Alma::Batch::Api.new
-
-    # ok, this probably isn't the best way to test
-    # as the tests themselves might take more than a second
-    # doing lots of samples
-
-    # Process.clock_gettime(Process::CLOCK_MONOTONIC )
-    # we don't care about system clock, but we do care about
-    # seconds it takes to do these tests...
-
-    
-#  end
-
-  #it 'pauses for one second if gets 21 seconds in less than a second' do
-  #  end
-
-

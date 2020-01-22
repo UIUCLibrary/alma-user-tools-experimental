@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<web_service_result xmlns="http://com/exlibris/urm/general/xmlbeans">
+  <errorsExist>true</errorsExist>
+  <errorList>
+    <error>
+      <errorCode>PER_SECOND_THRESHOLD</errorCode>
+      <errorMessage>HTTP requests are more than allowed per second. See https://goo.gl/2x1c1M </errorMessage>
+    </error>
+  </errorList>
+</web_service_result>
