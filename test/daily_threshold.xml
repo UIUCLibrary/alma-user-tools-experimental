@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<web_service_result xmlns="http://com/exlibris/urm/general/xmlbeans">
+  <errorsExist>true</errorsExist>
+  <errorList>
+    <error>
+      <errorCode>DAILY_THRESHOLD</errorCode>
+      <errorMessage>Daily API Request Threshold has been reached. For details see: https://developers.exlibrisgroup.com/alma/apis#threshold</errorMessage>
+    </error>
+  </errorList>
+</web_service_result>
