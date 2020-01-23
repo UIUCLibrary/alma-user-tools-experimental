@@ -37,7 +37,7 @@ module Alma
 
         # comment out for most testing, would be one level below debug...
 
-        @log.debug( @xml.to_xml(:indent => 2) )
+#        @log.debug( @xml.to_xml(:indent => 2) )
         
       end
 

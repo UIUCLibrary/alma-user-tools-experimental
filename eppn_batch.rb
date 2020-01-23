@@ -88,7 +88,7 @@ connection_config = YAML::load_file( 'alma.yml' )
 
 # doing for testing...less of a headache...
 #filter = Net::LDAP::Filter.construct("(memberOf:1.2.840.113556.1.4.1941:=CN=Library IT - IMS Faculty and Staff,OU=IT - IMS,OU=Units,OU=Library,OU=Urbana,DC=ad,DC=uillinois,DC=edu)")
-filter = Net::LDAP::Filter.construct("(cn=colwell3)")
+#filter = Net::LDAP::Filter.construct("(cn=colwell3)")
 
 library_employee_list = EmployeeEppnList.new( filter )
 log.debug( "Found #{library_employee_list.all().length} entries for filter " + filter.to_s)
@@ -152,7 +152,7 @@ library_employee_list.all().each do | person |
   end
   
 
-  log.debug(user.to_xml)
+#  log.debug(user.to_xml)
   
   if user.changed 
     update_user(api, user)
