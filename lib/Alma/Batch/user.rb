@@ -16,16 +16,22 @@ module Alma
       def initialize( xml_content )
         @xml = Nokogiri::XML( xml_content )
 
-        @log = Logging.logger[self]
-        
-        @log.add_appenders(
-          Logging.appenders.stdout,
-          Logging.appenders.file('eppn_batch.log')
-          
-        )
-        
-        @log.level = :debug
+        # Ok, we're hitting limits in # of open files
+        # seems ike garbage collection not going fast enough
+        # there's probably a better way to do this...
+        # 
+      #  @log = Logging.logger[self]
+      #  
+      #  @log.add_appenders(
+      #    Logging.appenders.stdout,
+      #    Logging.appenders.file('eppn_batch.log')
+      #    
+      #  )
+      #  
+      #  @log.level = :debug
 
+
+        
         # simple approach..but requires
         # people modifying to change this value...
         # maybe Nokogiri XML could deal with ?
@@ -71,7 +77,7 @@ module Alma
           # id, not sure if that's a problem though, should test
           # TODO: test what happens with multlipe inactive ids and Alma api
           
-          @log.warn("Id #{type} with #{value} either conflicts with primary_id #{self.primary_id} or another active id value")
+          #@log.warn("Id #{type} with #{value} either conflicts with primary_id #{self.primary_id} or another active id value")
 
           # So...at least when adding ids, even if inactive, they can't match the primary id
           # if self.find_ids({:id_type => type, :value => value, :status => Alma::Batch::User::INACTIVE_STATUS}).empty?
@@ -93,7 +99,7 @@ module Alma
         # something causes us to not add the identifier
         # also, this still MAY NOT WORK...might have to remove old inactive nodes
         if status == Alma::Batch::User::ACTIVE_STATUS
-          @log.debug("disabling active ids that match the current type")
+        #  @log.debug("disabling active ids that match the current type")
           self.disable_ids_of(type) 
         end
 
@@ -153,7 +159,7 @@ module Alma
         
         xpath  = "/user/user_identifiers/user_identifier#{restrictions_s}"
 
-        @log.debug( "searching nodes on #{xpath}" )
+#        @log.debug( "searching nodes on #{xpath}" )
         @xml.xpath( xpath ) 
       end
 
@@ -168,7 +174,7 @@ module Alma
       # probably could have some sort of meta-programming w/ maps of where
       # certain attributes found...
       def primary_id
-        @log.debug("Primary id called....value will be..." + @xml.xpath('/user/primary_id').first.content)
+       # @log.debug("Primary id called....value will be..." + @xml.xpath('/user/primary_id').first.content)
         
         # probabhly should throw out error if multiple primary ids....
         @xml.xpath('/user/primary_id').first.content
