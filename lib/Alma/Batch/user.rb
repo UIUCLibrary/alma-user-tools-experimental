@@ -180,6 +180,9 @@ module Alma
         @xml.xpath('/user/primary_id').first.content
       end
 
+      def eppn
+        find_ids(:id_type => 'NETIDSCOPED', :status => Alma::Batch::User::ACTIVE_STATUS ).first.xpath("value").content
+      end
       def to_xml
         @xml.to_xml
       end
