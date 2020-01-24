@@ -1,0 +1,53 @@
+Item #	Item Name	Offset	Format	Required	Length
+1	patron id	1	n		10
+2	patron barcode id 1	11	n*		10
+3	patron barcode 1	21	s		25
+4	patron group 1	46	s		10
+5	barcode status 1	56	n*		1
+6	barcode modified date 1	57	d		10
+7	patron barcode id 2	67	n*		10
+8	patron barcode 2	77	s		25
+9	patron group 2	102	s		10
+10	barcode status 2	112	n*		1
+11	barcode modified date 2	113	d		10
+12	patron barcode id 3	123	n*		10
+13	patron barcode 3	133	s		25
+14	patron group 3	158	s		10
+15	barcode status 3	168	n*		1
+16	barcode modified date 3	169	d		10
+17	registration date	179	d		10
+18	patron expiration date	189	d	y	10
+19	patron purge date	199	d	y	10
+20	voyager date	209	b		10
+21	voyager updated	219	b		10
+22	circulation happening location code	229	s		10
+23	institution ID	239	s	Footnote 	30
+24	ssn	269	s	Footnote   	11
+25	statistical category 1	280	s		3
+26	statistical category 2	283	s		3
+27	statistical category 3	286	s		3
+28	statistical category 4	289	s		3
+29	statistical category 5	292	s		3
+30	statistical category 6	295	s		3
+31	statistical category 7	298	s		3
+32	statistical category 8	301	s		3
+33	statistical category 9	304	s		3
+34	statistical category 10	307	s		3
+35	name type	310	n	y	1
+36	surname	311	s	y	30
+37	first name	341	s		20
+38	middle name	361	s		20
+39	title	381	s		10
+40	historical charges	391	n		10
+41	claims returned count	401	n		5
+42	self-shelved count	406	n		5
+43	lost items count	411	n		5
+44	late media returns	416	n		5
+45	historical bookings	421	n		5
+46	canceled bookings	426	n		5
+47	unclaimed bookings	431	n		5
+48	historical callslips	436	n		5
+49	historical distributions	441	n		5
+50	historical short loans	446	n		5
+51	unclaimed short loans	451	n		5
+52	address count	456	n	y	1

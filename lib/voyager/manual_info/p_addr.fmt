@@ -1,0 +1,20 @@
+Item #	Item Name	Offset	Format	Required	Length
+53	address id	457	n		10
+54	address type	467	n	y	1
+55	address status code	468	s	y	1
+56	address begin date	469	d	y	10
+57	address end date	479	d	y	10
+58	address line 1	489	s	y	50
+59	address line 2	539	s		40
+60	address line 3	579	s		40
+61	address line 4	619	s		40
+62	address line 5	659	s		40
+63	city	699	s		40
+64	state (province) code	739	s		7
+65	zipcode/postal code	746	s		10
+66	country	756	s		20
+67	phone (primary)	776	s		25
+68	phone (mobile)	801	s		25
+69	phone (fax)	826	s		25
+70	phone (other)	851	s		25
+71	date added/updated	876	b		10
