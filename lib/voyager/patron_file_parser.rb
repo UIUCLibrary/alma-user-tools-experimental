@@ -2,7 +2,7 @@
 
 module Voyager
 
-  class PatronFile
+  class PatronFileParser
 
     LENGTH_ADDRESS_ENTRY = 429
     INITIAL_ADDRESS_OFFSET = 456
