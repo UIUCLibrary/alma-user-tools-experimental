@@ -45,10 +45,10 @@ module Voyager
       
       @gen_info_fields.each do | gen_field |
         field_contents = line[gen_field[:offset].to_i - 1, gen_field[:length].to_i]
-        person[gen_field[:name]] =  field_contents
+        person[gen_field[:name]] =  _clean( field_contents )
 
         if gen_field[:name] == 'address count' and field_contents =~ /^\d$/
-          address_count = field_contents
+          address_count = _clean( field_contents ).to_i
         end
       end
 
@@ -63,10 +63,10 @@ module Voyager
       
       addresses = []
       
-      (0..(address_count.to_i-1)).each  do | address_number |
+      (0..(address_count - 1)).each  do | address_number |
         address = {}
         @addr_fields.each do | addr_field |
-          address[ addr_field[:name] ] = line[addr_field[:offset].to_i + (address_number * LENGTH_ADDRESS_ENTRY) - 1, addr_field[:length].to_i] 
+          address[ addr_field[:name] ] = _clean( line[addr_field[:offset].to_i + (address_number * LENGTH_ADDRESS_ENTRY) - 1, addr_field[:length].to_i] ) 
         end
         
         addresses.push( address )
@@ -74,14 +74,14 @@ module Voyager
       
       person[:addresses] = addresses
       
-      current_offset = INITIAL_ADDRESS_OFFSET + (LENGTH_ADDRESS_ENTRY * address_count.to_i);
+      current_offset = INITIAL_ADDRESS_OFFSET + (LENGTH_ADDRESS_ENTRY * address_count);
   
       #then space for any notes
 
       notes = line[current_offset,1000]
       
       unless notes.nil? or notes =~ /^\s*$/
-        person[:notes] = notes;  
+        person[:notes] = _clean( notes );  
       end
 
       if line.length  > current_offset + 1000
@@ -120,7 +120,8 @@ module Voyager
       format_file.each do | line |
         line = line.chomp
         line_fields = line.split("\t")
-        
+
+        # TODO: clean and convert to integers here where appropriate
         fields.push({
 		      :order    => line_fields[0],
 		      :name     => line_fields[1],
@@ -151,6 +152,10 @@ module Voyager
       _format_map( __dir__ + "/manual_info/p_addr.fmt" )
     end
 
+    def _clean( text )
+
+      text.strip
+    end
 
     
   end
