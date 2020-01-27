@@ -45,7 +45,7 @@ module Voyager
       
       @gen_info_fields.each do | gen_field |
         field_contents = line[gen_field[:offset].to_i - 1, gen_field[:length].to_i]
-        person[gen_field[:name]] =  _clean( field_contents )
+        person[ gen_field[:name] ] =  _clean( field_contents )
 
         if gen_field[:name] == 'address count' and field_contents =~ /^\d$/
           address_count = _clean( field_contents ).to_i
@@ -124,7 +124,7 @@ module Voyager
         # TODO: clean and convert to integers here where appropriate
         fields.push({
 		      :order    => line_fields[0],
-		      :name     => line_fields[1],
+		      :name     => line_fields[1].downcase.strip,
 		      :offset   => line_fields[2],
 		      :format   => line_fields[3],
 		      :required => line_fields[4],
