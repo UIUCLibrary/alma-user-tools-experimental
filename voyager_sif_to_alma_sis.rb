@@ -39,6 +39,8 @@ def build_barcodes( xml, user, voyager_patron )
     ident_node.add_child( xml.create_element( 'status', barcode_status ) )
 
     user_identifiers.add_child( ident_node )
+
+
     
   end
 end
@@ -80,6 +82,9 @@ entries.each do | entry |
   end
 
 
+  #Ok, doing this for now just to validate xml w/ xsd
+  File.write('_sis_xml/' + entry['institution id'] + '.xml', user.to_xml ) 
+  
   root_node.add_child( user.to_xml )
 
 end
