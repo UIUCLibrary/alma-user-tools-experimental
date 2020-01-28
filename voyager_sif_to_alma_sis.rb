@@ -65,9 +65,25 @@ entries.each do | entry |
 
   build_barcodes( xml, user, entry ) 
   
-  root_node.add_child( user.to_xml )
-end
 
+  # voyager format for dates is yyyy.mm.dd, alma is accofding to the xsd date spec (basically we can do yyyy-mm-dd...
+  
+  # feels like we could set up a map and transform w/ method_missing?
+  
+  unless entry['patron expiration date'].nil? or entry['patron expiration date'].empty? 
+    user.add_child( xml.create_element( 'expiry_date', entry['patron expiration date'].gsub(/\./, '-') ) )
+  end
+  
+  
+  unless entry['patron purge date'].nil? or entry['patron purge date'].empty? 
+    user.add_child( xml.create_element( 'purge_date', entry['patron purge date'].gsub(/\./, '-') ) )
+  end
+
+
+  root_node.add_child( user.to_xml )
+
+end
+   
 xml.add_child( root_node ) 
 puts xml.to_xml
 
