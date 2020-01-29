@@ -10,7 +10,7 @@ def get_user_child_node( xml, user, name )
   node = xml.xpath("/users/#{name}").first
   
   if node.nil?
-    node = xml.create_element('name')
+    node = xml.create_element(name)
     user.add_child( node )
   end
 
@@ -26,66 +26,79 @@ def translate_addresses( xml, user, voyager_patron )
   phones = get_user_child_node( xml, user, 'phones' )
 
   emails = get_user_child_node( xml, user, 'emails')   
-  voyager_patron['addresses'].each do | address |
-    
-    # address id
-    # address type     1 = permanent -- only one is permitted 2 = temporary 3 = e-mail
-    # address status code n = normal h = hold mail
-    # address begin date
-    # address end date
-    # address line 1
-    # address line 2
-    # address line 3
-    # address line 4
-    # address line 5
-    # city
-    # state (province) code
-    # zipcode/postal code
-    # country
-    # date added/updated
 
-    # Alma
-    # line1	string	Line 1 of the address. Mandatory.
-    # line2	string255Length	Line 2 of the address.
-    # line3	string255Length	Line 3 of the address.
-    # line4	string255Length	Line 4 of the address.
-    # line5	string255Length	Line 5 of the address.
-    # city	string255Length	The address' relevant city. Mandatory.
-    # state_province	string255Length	The address' relevant state.
-    # postal_code	string255Length	The address' relevant postal code.
-    # country	with attr.	The address' relevant country. (CODE)
-    # address_note	string1000Length	The address' related note.
-    # start_date	date	The date from which the address is deemed to be active.
-    # end_date	date	The date after which the address is no longer active.
-    # address_types	address_types	Address types. Mandatory.
- 
+  if voyager_patron.key?(:addresses)
+    voyager_patron[:addresses].each do | source_address |
+      
+      puts "examining address"
+      # address id
+      # address type     1 = permanent -- only one is permitted 2 = temporary 3 = e-mail
+      # address status code n = normal h = hold mail
+      # address begin date
+      # address end date
+      # address line 1
+      # address line 2
+      # address line 3
+      # address line 4
+      # address line 5
+      # city
+      # state (province) code
+      # zipcode/postal code
+      # country
+      # date added/updated
+      
+      # Alma
+      # line1	string	Line 1 of the address. Mandatory.
+      # line2	string255Length	Line 2 of the address.
+      # line3	string255Length	Line 3 of the address.
+      # line4	string255Length	Line 4 of the address.
+      # line5	string255Length	Line 5 of the address.
+      # city	string255Length	The address' relevant city. Mandatory.
+      # state_province	string255Length	The address' relevant state.
+      # postal_code	string255Length	The address' relevant postal code.
+      # country	with attr.	The address' relevant country. (CODE)
+      # address_note	string1000Length	The address' related note.
+      # start_date	date	The date from which the address is deemed to be active.
+      # end_date	date	The date after which the address is no longer active.
+      # address_types	address_types	Address types. Mandatory.
+      
+      if source_address["address type"].to_i == 3
+        email = xml.create_element('email')
+        email.add_child( xml.create_element( 'email_address', source_address['address line 1'] ) )
 
+        email_types = xml.create_element(  'email_types' )
 
-    
-    barcode_value = voyager_patron['patron barcode ' + barcode_sequence.to_s] 
-    if barcode_value.nil? or barcode_value.empty?
-      next
+        types = ['school','work']
+
+        types.each do | type |
+          email_types.add_child( xml.create_element( 'email_type', type) )
+        end
+
+        email.add_child( email_types )
+        
+        emails.add_child( email )
+      else
+      
+        address = xml.create_element( 'address' )
+
+        (1..5).each do | line_number |
+          source_line = source_address["address line " + line_number.to_s]
+          address.add_child(xml.create_element("line#{line_number.to_s}",source_line) )
+        end
+        
+        
+        addresses.add_child( address )
+        # phone (primary)
+        # phone (mobile)
+        # phone (fax)
+        # phone (other)
+      end
     end
-    ident_node = xml.create_element('user_identifier')
-
-    ident_node.add_child( xml.create_element( 'id_type', 'BARCODE' ) )
-    ident_node.add_child( xml.create_element( 'value', barcode_value ) )
-
-    barcode_status = voyager_patron['barcode status ' + barcode_sequence.to_s].to_i == 1 ? 'ACTIVE' : 'INACTIVE'
-                                                                       
-    ident_node.add_child( xml.create_element( 'status', barcode_status ) )
-
-    user_identifiers.add_child( ident_node )
-
-
-    # phone (primary)
-    # phone (mobile)
-    # phone (fax)
-    # phone (other)
-
-
+    user.add_child( addresses )
   end
 
+  user.add_child( emails )
+  user.add_child( phones )
 end
 
 def translate_barcodes( xml, user, voyager_patron )
@@ -228,7 +241,7 @@ entries.each do | entry |
   # statistical category 9
   # statistical category 10
 
-  if entry.key?('addresses')
+  if entry.key?(:addresses)
     translate_addresses( xml, user, entry ) 
   end
   
