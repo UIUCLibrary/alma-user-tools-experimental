@@ -1,6 +1,8 @@
 require './lib/voyager/patron_file_parser.rb'
 require 'nokogiri'
 require 'pp'
+require 'csv'
+
 
 # maybe merge soeme of this into Alma::Batch;;User?
 
@@ -17,6 +19,20 @@ def get_user_child_node( xml, user, name )
   node
 end
 
+# needs a lot more love....
+def guess_country_code( text )
+  @country_code_lookup[ normalize( text ) ]
+
+
+  
+end
+
+def normalize( text )
+  text.gsub(/\s/,'').gsub(/[[:punct:]]/, '').gsub(/\p{S}/,'').downcase 
+end
+
+ 
+
 
 #  might be able to refactor with build_
 def translate_addresses( xml, user, voyager_patron )
@@ -31,6 +47,8 @@ def translate_addresses( xml, user, voyager_patron )
     voyager_patron[:addresses].each do | source_address |
       
       puts "examining address"
+
+      address_note = "" 
       # address id
       # address type     1 = permanent -- only one is permitted 2 = temporary 3 = e-mail
       # address status code n = normal h = hold mail
@@ -85,6 +103,32 @@ def translate_addresses( xml, user, voyager_patron )
           source_line = source_address["address line " + line_number.to_s]
           address.add_child(xml.create_element("line#{line_number.to_s}",source_line) )
         end
+
+        address.add_child(xml.create_element('city', source_address['city']) )
+        address.add_child(xml.create_element('state_province', source_address['state (province) code']) )
+        address.add_child(xml.create_element('postal_code', source_address['zipcode/postal code']) )
+
+
+         # So....currently country is a 20 character free text field in sif, but needs to be a code in Alma...
+        # This needs more attention in the long run, but for now will do a low-level mapping based off of normalization of the description...
+        # TODO: add test cases
+        
+        # TODO: Add in warning to logger
+        unless source_address['country'].nil? or source_address['country'].empty?
+          address_note += "Country in original source was " + source_address['country'] + "\n"
+
+          guess = guess_country_code( source_address['country'] )
+
+          if guess
+            address.add_child(xml.create_element('country', guess ) )
+          else
+
+            unmapped_warning = " Could not guess country for #{source_address['country']} \n"
+            address_note += unmapped_warning
+            puts unmapped_warning
+          end
+        end
+        
         
         
         addresses.add_child( address )
@@ -96,13 +140,16 @@ def translate_addresses( xml, user, voyager_patron )
     end
     user.add_child( addresses )
   end
-
+  
   user.add_child( emails )
   user.add_child( phones )
 end
 
+
+
 def translate_barcodes( xml, user, voyager_patron )
 
+  
   # so...barcodes are user_identifiers, which means...we need the user_idetnfier node...
 
   # in voyager barcode can have the following stasues....
@@ -147,9 +194,6 @@ def translate_barcodes( xml, user, voyager_patron )
 
   puts "pulled out following patron groups\n"
   puts pp patron_groups
-  # we'll need this for dealing with patron groups
-  prorities = Hash.new
-  File.readlines( 'patron_group_priority.txt', chomp: true)
   
   if patron_groups.length > 0
     
@@ -159,9 +203,16 @@ def translate_barcodes( xml, user, voyager_patron )
   
 end
 
+
+@country_code_lookup = Hash.new
+CSV.read('country_lookup.map').each {|text,code|  @country_code_lookup[text] = code }
+
 parser = Voyager::PatronFileParser::new
 
-patron_group_priority = 
+# probalby should pull this up a level,
+# we'll need this for dealing with patron groups
+priorities = Hash.new
+File.readlines( 'patron_group_priority.txt', chomp: true)
 
 
 entries = parser.parse_file( ARGV[0] ) 
