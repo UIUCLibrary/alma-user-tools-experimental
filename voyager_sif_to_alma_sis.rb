@@ -6,15 +6,17 @@ require 'csv'
 
 # maybe merge soeme of this into Alma::Batch;;User?
 
+# TODO...refactor this...
+# or use missing_method...
+# seems like nokogiri should have some of this already..
+def create_node_if_does_not_exist( xml, parent_node, name )
+  node = parent_node.xpath(name).first
 
-
-def get_user_child_node( xml, user, name )
-  node = xml.xpath("/users/#{name}").first
   
   if node.nil?
     node = xml.create_element(name)
-    user.add_child( node )
-  end
+    parent_node.add_child( node )
+   end
 
   node
 end
@@ -36,12 +38,19 @@ end
 
 #  might be able to refactor with build_
 def translate_addresses( xml, user, voyager_patron )
- 
-  addresses = get_user_child_node( xml, user, 'addresses' )
-  
-  phones = get_user_child_node( xml, user, 'phones' )
 
-  emails = get_user_child_node( xml, user, 'emails')   
+  contact_info = user.xpath('contact_info').first
+  
+  if contact_info.nil?
+    contact_info = xml.create_element('contact_info')
+    user.add_child( contact_info )
+  end
+
+
+  addresses = create_node_if_does_not_exist( xml,contact_info,'addresses')
+  phones    = create_node_if_does_not_exist( xml,contact_info,'phones')
+  emails    = create_node_if_does_not_exist( xml,contact_info,'emails')
+  
 
   if voyager_patron.key?(:addresses)
     voyager_patron[:addresses].each do | source_address |
@@ -138,11 +147,8 @@ def translate_addresses( xml, user, voyager_patron )
         # phone (other)
       end
     end
-    user.add_child( addresses )
   end
   
-  user.add_child( emails )
-  user.add_child( phones )
 end
 
 
