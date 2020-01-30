@@ -104,6 +104,7 @@ def translate_addresses( xml, user, voyager_patron )
         email.add_child( email_types )
         
         emails.add_child( email )
+
       else
       
         address = xml.create_element( 'address' )
@@ -141,16 +142,62 @@ def translate_addresses( xml, user, voyager_patron )
         
         
         addresses.add_child( address )
+
         # phone (primary)
         # phone (mobile)
         # phone (fax)
         # phone (other)
+
+        # do we want to dedup phone numbers, or can alma handle it sanely?
+        translate_phones( xml, phones, source_address )
+          
+        end
+
       end
     end
-  end
-  
 end
 
+# TODO: should have object that represent an address created from Voyager SIF
+#       that can answer this question
+
+def translate_phones( xml, phones, address )
+
+  #a little messy, should consider breaking out logic
+  phone_types_map = [{
+                            :voyager_name => 'phone (primary)',
+                            :alma_types   => ['home','work'],
+                          },
+                          {
+                            :voyager_name => 'phone (mobile)',
+                            :alma_types   => ['mobile'],
+                          },
+                          {
+                            :voyager_name => 'phone (fax)',
+                            :alma_types   => ['officeFax'],
+                          },
+                          {
+                            :voyager_name => 'phone (other)',
+                            :alma_types   => ['home','work','mobile']
+                          } ]
+  
+  phone_types_map.each do  | phone |
+    if not(address[phone[:voyager_name]].nil? or address[phone[:voyager_name]].empty?)
+
+      phone = xml.create_element('phone')
+      phone.add_child( xml.create_element( 'phone_number', address[ phone[ :voyager_name ] ] ) )
+
+      phone_types = xml.create_element('phone_types')
+      phone[:alma_types].each do | type |
+        phone_types.add_child( xml.create_element( 'phone_type', type ) )
+      end
+
+      phone.add_child( phone_types )
+
+      phones.add_child( phone )
+      
+    end
+  end
+end
 
 
 def translate_barcodes( xml, user, voyager_patron )
