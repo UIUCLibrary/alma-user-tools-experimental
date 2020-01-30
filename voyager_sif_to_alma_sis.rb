@@ -4,6 +4,10 @@ require 'pp'
 require 'csv'
 
 
+def voyager_day_to_alma_day( day )
+  day.gsub(/\./, '-')
+end
+
 # maybe merge soeme of this into Alma::Batch;;User?
 
 # TODO...refactor this...
@@ -138,7 +142,19 @@ def translate_addresses( xml, user, voyager_patron )
             puts unmapped_warning
           end
         end
-        
+
+
+        address.add_child( xml.create_element('start_date', voyager_day_to_alma_day( source_address['address begin date'] ) ) )
+        address.add_child( xml.create_element('end_date', voyager_day_to_alma_day( source_address['address end date'] ) ) )
+
+        # sincew we don't know but need a value here...populating with the ones that Ex Libris did
+        address_types = xml.create_element('address_types')
+
+        ['home','work','school','alternative'].each do | type |
+          address_types.add_child( xml.create_element( 'address_type', type ) )
+        end
+
+        address.add_child( address_types )
         
         
         addresses.add_child( address )
@@ -299,7 +315,7 @@ entries.each do | entry |
   
   
   unless entry['patron purge date'].nil? or entry['patron purge date'].empty? 
-    user.add_child( xml.create_element( 'purge_date', entry['patron purge date'].gsub(/\./, '-') ) )
+    user.add_child( xml.create_element( 'purge_date', voyager_day_to_alma_day( entry['patron purge date'] ) ) )
   end
 
 
