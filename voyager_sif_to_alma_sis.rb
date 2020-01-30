@@ -48,8 +48,8 @@ def translate_addresses( xml, user, voyager_patron )
 
 
   addresses = create_node_if_does_not_exist( xml,contact_info,'addresses')
-  phones    = create_node_if_does_not_exist( xml,contact_info,'phones')
   emails    = create_node_if_does_not_exist( xml,contact_info,'emails')
+  phones    = create_node_if_does_not_exist( xml,contact_info,'phones')
   
 
   if voyager_patron.key?(:addresses)
